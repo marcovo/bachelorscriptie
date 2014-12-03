@@ -46,6 +46,7 @@ end
 ##
 function randVW1!(bwp::GrayScott, u_t, t)
 	u_t[1] = 1;
+	u_t[2] = 1;
 	u_t[end] = 1;
 end
 function randVW2!(bwp::GrayScott, u_t, t)
