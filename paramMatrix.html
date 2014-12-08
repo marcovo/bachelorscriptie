@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+<!--
+- paramMatrix.html
+- Maak een 2D-array/matrix van plaatjes doorzoekbaar met knoppen en pijltjestoetsen
+-->
+<style type="text/css">
+
+table {
+	border: 0px solid #000000;
+	text-align: center;
+}
+
+td#up, td#left, td#right, td#down {
+	cursor: pointer;
+	background-color: #cccccc;
+}
+
+</style>
+<script type="text/javascript">
+	var xs = ["1.0", 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, "2.0"];
+	var ys = ["1.0", 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, "2.0"];
+	var labelX = "alpha1";
+	var labelY = "alpha2";
+	var currentX = 0;
+	var currentY = 0;
+	
+	var url = "resultaten/alphaMat_res/alphaMat_{x}_{y}_u.png";
+	
+	function arrayMax(numArray) {
+		return Math.max.apply(null, numArray.map(parseFloat));
+	}
+	function arrayMin(numArray) {
+		return Math.min.apply(null, numArray.map(parseFloat));
+	}
+	
+	function changeImage() {
+		document.getElementById('current').innerHTML = labelX + ' = ' + xs[currentX] + ', ' + labelY + ' = ' + ys[currentY];
+		document.getElementById('image').src = url.replace('{x}', xs[currentX]).replace('{y}', ys[currentY]);
+		document.getElementById('up').innerHTML		= labelY + ' = ' + ys[up()];
+		document.getElementById('down').innerHTML	= labelY + ' = ' + ys[down()];
+		document.getElementById('left').innerHTML	= labelX + ' = ' + xs[left()];
+		document.getElementById('right').innerHTML	= labelX + ' = ' + xs[right()];
+	}
+	
+	function moveUp()		{currentY = up(); changeImage(); }
+	function moveDown()		{currentY = down(); changeImage(); }
+	function moveLeft()		{currentX = left(); changeImage(); }
+	function moveRight()	{currentX = right(); changeImage(); }
+
+	function up()		{return Math.max(currentY - 1, 0); }
+	function down()		{return Math.min(currentY + 1, ys.length-1); }
+	function left()		{return Math.max(currentX - 1, 0); }
+	function right()	{return Math.min(currentX + 1, xs.length-1); }
+	
+	function keyCode(evt) {
+		return document.layers ? evt.which : document.all ? event.keyCode : document.getElementById ? evt.keyCode : 0;
+	}
+	
+	window.onload = function() { changeImage(); };
+	window.onkeyup = function(e) {
+		var key = keyCode(e);
+			 if(key == 38) moveUp();
+		else if(key == 37) moveLeft();
+		else if(key == 39) moveRight();
+		else if(key == 40) moveDown();
+	};
+</script>
+</head>
+<body>
+<table>
+	<tr>
+		<td></td>
+		<td id="up" onclick="moveUp();"></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td id="left" onclick="moveLeft();"></td>
+		<td>
+			<span id="current"></span>
+			<img src="" alt="" id="image" />
+		</td>
+		<td id="right" onclick="moveRight();"></td>
+	</tr>
+	<tr>
+		<td></td>
+		<td id="down" onclick="moveDown();"></td>
+		<td></td>
+	</tr>
+</table>
+</body>
+</html>

@@ -316,7 +316,7 @@ function BerekenGrayScott(dx::Float64, dt::Float64, T::Float64, Nx_img::Integer,
 		u_t[2:Nx] += temp3;
 		v_t[2:Nx] += temp4;
 		
-		# If we're moddeling semi-implicit, we now apply the correction, for what we've calculated explicitly, what we should have done implicitly.
+		# If we're modelling semi-implicit, we now apply the correction, for what we've calculated explicitly, what we should have done implicitly.
 		# After that, we solve the system of equalities with the \-operator.
 		if disc1.imex == "im"
 			u_t[2:Nx] = IWimpl1\(u_t[2:Nx] + implCorr1)

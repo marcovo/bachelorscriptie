@@ -66,6 +66,7 @@ types = {
 	"AdvecDiff" => AdvecDiff,
 	"EvwVgl"	=> EvwVgl,
 	"Fisher"	=> Fisher,
+	"GrayScott"	=> GrayScott,
 	"L2"		=> L2,
 	"L2C"		=> L2C,
 	"GL"		=> GL
