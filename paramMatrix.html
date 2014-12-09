@@ -12,7 +12,7 @@ table {
 	text-align: center;
 }
 
-td#up, td#left, td#right, td#down {
+td#up, td#left, td#right, td#down, span.link {
 	cursor: pointer;
 	background-color: #cccccc;
 }
@@ -25,8 +25,10 @@ td#up, td#left, td#right, td#down {
 	var labelY = "alpha2";
 	var currentX = 0;
 	var currentY = 0;
+	var dir = 0;
+	var dirs = ["alphaMat_res", "alphaMat_0.0025_0.1", "alphaMat_0.0025_0.01"];
 	
-	var url = "resultaten/alphaMat_res/alphaMat_{x}_{y}_u.png";
+	var url = "resultaten/{dir}/alphaMat_{x}_{y}_u.png";
 	
 	function arrayMax(numArray) {
 		return Math.max.apply(null, numArray.map(parseFloat));
@@ -36,8 +38,8 @@ td#up, td#left, td#right, td#down {
 	}
 	
 	function changeImage() {
-		document.getElementById('current').innerHTML = labelX + ' = ' + xs[currentX] + ', ' + labelY + ' = ' + ys[currentY];
-		document.getElementById('image').src = url.replace('{x}', xs[currentX]).replace('{y}', ys[currentY]);
+		document.getElementById('current').innerHTML = 'dir = ' + dirs[dir] + ', ' + labelX + ' = ' + xs[currentX] + ', ' + labelY + ' = ' + ys[currentY];
+		document.getElementById('image').src = url.replace('{dir}', dirs[dir]).replace('{x}', xs[currentX]).replace('{y}', ys[currentY]);
 		document.getElementById('up').innerHTML		= labelY + ' = ' + ys[up()];
 		document.getElementById('down').innerHTML	= labelY + ' = ' + ys[down()];
 		document.getElementById('left').innerHTML	= labelX + ' = ' + xs[left()];
@@ -57,8 +59,21 @@ td#up, td#left, td#right, td#down {
 	function keyCode(evt) {
 		return document.layers ? evt.which : document.all ? event.keyCode : document.getElementById ? evt.keyCode : 0;
 	}
+
+	function showDirs() {
+		var content = '';
+		for(dirId in dirs) {
+			content += '<span class="link" onclick="changeDir('+dirId+');">'+dirs[dirId]+'</span> ';
+		}
+		document.getElementById('dirs').innerHTML = content;
+	}
 	
-	window.onload = function() { changeImage(); };
+	function changeDir(dirId) {
+		dir = dirId;
+		changeImage();
+	}
+	
+	window.onload = function() { changeImage(); showDirs(); };
 	window.onkeyup = function(e) {
 		var key = keyCode(e);
 			 if(key == 38) moveUp();
@@ -70,6 +85,11 @@ td#up, td#left, td#right, td#down {
 </head>
 <body>
 <table>
+	<tr>
+		<td></td>
+		<td id="dirs"></td>
+		<td></td>
+	</tr>
 	<tr>
 		<td></td>
 		<td id="up" onclick="moveUp();"></td>

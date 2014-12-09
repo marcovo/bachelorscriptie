@@ -20,7 +20,7 @@ convert(::Type{AdvecDiff}, d::Dict{String,Any}) = AdvecDiff(d["toString"], d["an
 # Geeft de beginvoorwaarde terug
 ##
 function beginOpl(BWP::AdvecDiff, x, a)
-	exp(-(x-BWP.x0).^2/(2*BWP.W))
+	exp(-(x-BWP.x0).^2/(2*BWP.W))*0.15
 end
 
 ##

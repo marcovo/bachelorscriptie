@@ -21,23 +21,29 @@ end
 ##
 function RS_makePlot(result::ResultSet; newfigure=true)
 	xs = 0:result.dx:result.BWP.L;
+
+	T = result.T;
+	ts = [0, T/8, 2*T/8, 3*T/8, 4*T/8, 5*T/8, 6*T/8, 7*T/8, T];
+	labels = map(t -> string(L"t = ", t), ts);
+	colours = map(t -> (0, 0.8*(1-t/T), t/T), ts);
+	if(result.BWP.analyticSol)
+		prepend!(labels, ["Exact"]);
+		prepend!(colours, [(1, 0, 0)])
+		i_start = 1;
+	else
+		i_start = 2;
+	end
 	
 	if(newfigure)
 		figure()
 	end
-	for i = 1:length(result.plotSamples[:,1])
-		plot(xs, result.plotSamples[i,:]');
+	for i = i_start:length(result.plotSamples[:,1])
+		plot(xs, result.plotSamples[i,:]', c=colours[i]);
 	end
 	
 	xlabel("x");
 	ylabel("u");
-	T = result.T;
-	if(result.BWP.analyticSol)
-		ts = [0, 0, T/8, 2*T/8, 3*T/8, 4*T/8, 5*T/8, 6*T/8, 7*T/8, T];
-	else
-		ts = [0, T/8, 2*T/8, 3*T/8, 4*T/8, 5*T/8, 6*T/8, 7*T/8, T];
-	end
-	legend(map(t -> string(L"t = ", t), ts), loc="center right", fontsize="small", labelspacing = 0.1);
+	legend(labels, loc="center right", fontsize="small", labelspacing = 0.1);
 	
 	nothing
 end
@@ -214,6 +220,7 @@ function lynchFig2_load()
 		#"evwVgl1_L2C_2.0"
 	]
 	
+	#=
 	L2 = [
 		"../resultaten3_evwVgl_lager_T2_im/evwVgl1_L2_1.3"
 		"../resultaten3_evwVgl_lager_T2_im/evwVgl1_L2_1.5"
@@ -224,6 +231,7 @@ function lynchFig2_load()
 		"../resultaten3_evwVgl_lager_T2_im/evwVgl1_L2C_1.5"
 		"../resultaten3_evwVgl_lager_T2_im/evwVgl1_L2C_1.7"
 	]
+	=#
 	#=L2 = [
 		"../resultaten1/evwVgl1_L2_1.3"
 		"../resultaten1/evwVgl1_L2_1.5"
@@ -253,7 +261,7 @@ function lynchFig2_load()
 	exErr_L2C = zeros(length(L2C));
 
 	for i in 1:length(L2)
-		result = RS_open(L2[i]);
+		result = RS_open("../resultaten1/$(L2[i])");
 		exErr_L2[i] = result.exactError[end]
 		
 		#=
@@ -272,7 +280,7 @@ function lynchFig2_load()
 	end
 
 	for i in 1:length(L2C)
-		result = RS_open(L2C[i]);
+		result = RS_open("../resultaten1/$(L2C[i])");
 		exErr_L2C[i] = result.exactError[end]
 		
 		#=
@@ -298,12 +306,12 @@ end
 
 function lynchFig2_draw(exErr_L2, exErr_L2C)
 	as = 1.0:0.1:1.9;
-	as = [1.3 ; 1.5 ; 1.7]
+	#as = [1.3 ; 1.5 ; 1.7]
 	#as = [1.1; 1.3 ; 1.5 ; 1.7; 1.9]
 	
 	figure();
-	plot(as, exErr_L2);
-	plot(as, exErr_L2C);
+	semilogy(as, exErr_L2);
+	semilogy(as, exErr_L2C);
 	
 	xlabel(L"\alpha");
 	ylabel(L"\delta u");
@@ -312,19 +320,22 @@ function lynchFig2_draw(exErr_L2, exErr_L2C)
 	nothing
 end
 
-function lynchFig3_calc()
-	
-	params = [
-		(L2("ex"), 400, 0.04, "lynchFig3_L2_400_004"),
-		(L2("ex"), 800, 0.02, "lynchFig3_L2_800_002"),
-		(L2("ex"), 1600, 0.01, "lynchFig3_L2_1600_001"),
-		(L2C("ex"), 400, 0.04, "lynchFig3_L2C_400_004"),
-		(L2C("ex"), 800, 0.02, "lynchFig3_L2C_800_002"),
-		(L2C("ex"), 1600, 0.01, "lynchFig3_L2C_1600_001")
-	];
+function lynchFig3_params(imex="ex")
+	[
+		(L2(imex), 400, 0.04, "lynchFig3_L2_400_004"),
+		(L2(imex), 800, 0.02, "lynchFig3_L2_800_002"),
+		(L2(imex), 1600, 0.01, "lynchFig3_L2_1600_001"),
+		(L2C(imex), 400, 0.04, "lynchFig3_L2C_400_004"),
+		(L2C(imex), 800, 0.02, "lynchFig3_L2C_800_002"),
+		(L2C(imex), 1600, 0.01, "lynchFig3_L2C_1600_001")
+	]
+end
+
+function lynchFig3_calc(imex="ex")
+	params = lynchFig3_params(imex);
 
 	for i = 1:length(params)
-		result = fractDeriv(dx=1.0/params[i][2], dt=params[i][3], T=10.0, BWP=AdvecDiff(chi=0.05,W=0.1), disc=params[i][1], a=1.0);
+		result = fractDeriv(dx=1.0/params[i][2], dt=params[i][3], T=10.0, bwp=AdvecDiff(chi=0.05,W=0.1), disc=params[i][1], a=1.0);
 		RS_save(result, params[i][4])
 		result = 0
 	end
@@ -333,15 +344,8 @@ function lynchFig3_calc()
 	nothing
 end
 
-function lynchFig3_draw()
-	params = [
-		(L2("ex"), 400, 0.04, "lynchFig3_L2_400_004"),
-		(L2("ex"), 800, 0.02, "lynchFig3_L2_800_002"),
-		(L2("ex"), 1600, 0.01, "lynchFig3_L2_1600_001"),
-		(L2C("ex"), 400, 0.04, "lynchFig3_L2C_400_004"),
-		(L2C("ex"), 800, 0.02, "lynchFig3_L2C_800_002"),
-		(L2C("ex"), 1600, 0.01, "lynchFig3_L2C_1600_001")
-	];
+function lynchFig3_draw(imex="ex")
+	params = lynchFig3_params(imex);
 	
 	
 	for i = 1:length(params)
@@ -351,6 +355,27 @@ function lynchFig3_draw()
 
 	xlabel(L"t");
 	ylabel(L"u_{\max}");
+	legend( map( p -> string(L"N = ", p[2], L", \Delta_t = ", p[3], ", ", p[1].toString), params), loc="lower left", fontsize="small", scatterpoints=1, labelspacing = 0.1#=, ncol = 2=#);
+
+end
+
+function lynchFig3_drawVelocity(imex="ex")
+	params = lynchFig3_params(imex);
+	
+	figure();
+	for i = 1:length(params)
+		result = RS_open(params[i][4])
+		
+		ts = 0.0:result.dt:result.T;
+		vs = zeros(length(ts));
+		
+		vs[2:5:end] = (result.maxValsPos[6:5:end] - result.maxValsPos[1:5:end-5]) / result.dt / 5;
+		
+		plot(ts[2:5:end], vs[2:5:end])
+	end
+
+	xlabel(L"t");
+	ylabel(L"v");
 	legend( map( p -> string(L"N = ", p[2], L", \Delta_t = ", p[3], ", ", p[1].toString), params), loc="lower left", fontsize="small", scatterpoints=1, labelspacing = 0.1#=, ncol = 2=#);
 
 end

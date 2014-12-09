@@ -33,6 +33,7 @@ type ResultSet
 	followUpDiff	::Array{Float64}
 	exactError		::Array{Float64}
 	maxVals			::Array{Float64}
+	maxValsPos		::Array{Float64}
 	plotSamples		::Array{Float64,2}
 	meshSamples		::Array{Float64,2}
 
@@ -77,6 +78,7 @@ convert(::Type{ResultSet}, d::Dict{String,Any}) =
 		d["followUpDiff"],
 		d["exactError"],
 		d["maxVals"],
+		get(d, "maxValsPos", [0.0]),
 		[d["plotSamples"][i][j] for j in 1:length(d["plotSamples"][1]), i in 1:length(d["plotSamples"]) ],
 		[d["meshSamples"][i][j] for j in 1:length(d["meshSamples"][1]), i in 1:length(d["meshSamples"]) ],
 		get(d, "trackMiddle", false),

@@ -68,6 +68,7 @@ function BerekenFisher(dx::Float64, dt::Float64, T::Float64, Nx_img::Integer, Nt
 		zeros(Nt+1),
 		zeros(Nt+1),
 		zeros(Nt+1),
+		zeros(Nt+1),
 		zeros(10, Nx+1),
 		zeros(Nx_img+1, Nt_img+1),
 		trackMiddle,
@@ -104,7 +105,8 @@ function BerekenFisher(dx::Float64, dt::Float64, T::Float64, Nx_img::Integer, Nt
 	RS_saveMesh!(result, 0, u_t, sampleFactor_x);
     plotNt_i = 3;
     
-	result.maxVals[1] = maximum(u_t);
+	result.maxVals[1], result.maxValsPos[1] = findmax(u_t);
+	result.maxValsPos[1] = xs[result.maxValsPos[1]];
     
 	# If we have an exact solution available, we compute it to check against later
 	if(bwp.analyticSol)
@@ -143,7 +145,8 @@ function BerekenFisher(dx::Float64, dt::Float64, T::Float64, Nx_img::Integer, Nt
 		
 		# We log some information in our result-set
 		result.followUpDiff[n] = sqrt(sumsq(temp3)/sumsq(u_t));
-		result.maxVals[n] = maximum(u_t);
+		result.maxVals[n], result.maxValsPos[n] = findmax(u_t);
+		result.maxValsPos[n] = xs[result.maxValsPos[n]];
 		
 		# Track x(t) for which u(x, t) = 0.5
 		if(trackMiddle)
