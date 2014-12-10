@@ -10,11 +10,19 @@
 table {
 	border: 0px solid #000000;
 	text-align: center;
+	margin: auto;
 }
 
-td#up, td#left, td#right, td#down, span.link {
-	cursor: pointer;
+td.gray {
 	background-color: #cccccc;
+}
+
+button {
+	cursor: pointer;
+}
+
+span#current {
+	font-weight: bold;
 }
 
 </style>
@@ -72,7 +80,7 @@ td#up, td#left, td#right, td#down, span.link {
 	function showDirs() {
 		var content = '';
 		for(dirId in dirs) {
-			content += '<span class="link" onclick="changeDir('+dirId+');">'+dirs[dirId][1]+'</span> ';
+			content += '<button onclick="changeDir('+dirId+');">'+dirs[dirId][1]+'</button> ';
 			if(dirId%4 == 0) content += '<br />';
 		}
 		document.getElementById('dirs').innerHTML = content;
@@ -102,20 +110,20 @@ td#up, td#left, td#right, td#down, span.link {
 	</tr>
 	<tr>
 		<td></td>
-		<td id="up" onclick="moveUp();"></td>
+		<td class="gray"><button id="up" onclick="moveUp();"></button></td>
 		<td></td>
 	</tr>
 	<tr>
-		<td id="left" onclick="moveLeft();"></td>
+		<td class="gray"><button id="left" onclick="moveLeft();"></button></td>
 		<td>
-			<span id="current"></span>
+			<span id="current"></span><br />
 			<img src="" alt="" id="image" />
 		</td>
-		<td id="right" onclick="moveRight();"></td>
+		<td class="gray"><button id="right" onclick="moveRight();"></button></td>
 	</tr>
 	<tr>
 		<td></td>
-		<td id="down" onclick="moveDown();"></td>
+		<td class="gray"><button id="down" onclick="moveDown();"></button></td>
 		<td></td>
 	</tr>
 </table>
