@@ -26,9 +26,18 @@ td#up, td#left, td#right, td#down, span.link {
 	var currentX = 0;
 	var currentY = 0;
 	var dir = 0;
-	var dirs = ["alphaMat_res", "alphaMat_0.0025_0.1", "alphaMat_0.0025_0.01"];
 	
-	var url = "resultaten/{dir}/alphaMat_{x}_{y}_u.png";
+	var dirs = [
+		["resultaten/alphaMat_res/alphaMat_{x}_{y}_u.png"					, "Resulterend"],
+		["resultaten/alphaMat_0.0025_0.1/alphaMat_{x}_{y}_u.png"			, "dt = 0.1, u_mesh"],
+		["resultaten/alphaMat_0.0025_0.1/alphaMat_{x}_{y}_u_plot.png"		, "dt = 0.1, u_plot"],
+		["resultaten/alphaMat_0.0025_0.1/alphaMat_{x}_{y}_v.png"			, "dt = 0.1, v_mesh"],
+		["resultaten/alphaMat_0.0025_0.1/alphaMat_{x}_{y}_v_plot.png"		, "dt = 0.1, v_plot"],
+		["resultaten/alphaMat_0.0025_0.01/alphaMat_{x}_{y}_u.png"			, "dt = 0.01, u_mesh"],
+		["resultaten/alphaMat_0.0025_0.01/alphaMat_{x}_{y}_u_plot.png"		, "dt = 0.01, u_plot"],
+		["resultaten/alphaMat_0.0025_0.01/alphaMat_{x}_{y}_v.png"			, "dt = 0.01, v_mesh"],
+		["resultaten/alphaMat_0.0025_0.01/alphaMat_{x}_{y}_v_plot.png"		, "dt = 0.01, v_plot"]
+	];
 	
 	function arrayMax(numArray) {
 		return Math.max.apply(null, numArray.map(parseFloat));
@@ -38,8 +47,8 @@ td#up, td#left, td#right, td#down, span.link {
 	}
 	
 	function changeImage() {
-		document.getElementById('current').innerHTML = 'dir = ' + dirs[dir] + ', ' + labelX + ' = ' + xs[currentX] + ', ' + labelY + ' = ' + ys[currentY];
-		document.getElementById('image').src = url.replace('{dir}', dirs[dir]).replace('{x}', xs[currentX]).replace('{y}', ys[currentY]);
+		document.getElementById('current').innerHTML = 'dir = ' + dirs[dir][1] + ', ' + labelX + ' = ' + xs[currentX] + ', ' + labelY + ' = ' + ys[currentY];
+		document.getElementById('image').src = dirs[dir][0].replace('{x}', xs[currentX]).replace('{y}', ys[currentY]);
 		document.getElementById('up').innerHTML		= labelY + ' = ' + ys[up()];
 		document.getElementById('down').innerHTML	= labelY + ' = ' + ys[down()];
 		document.getElementById('left').innerHTML	= labelX + ' = ' + xs[left()];
@@ -63,7 +72,8 @@ td#up, td#left, td#right, td#down, span.link {
 	function showDirs() {
 		var content = '';
 		for(dirId in dirs) {
-			content += '<span class="link" onclick="changeDir('+dirId+');">'+dirs[dirId]+'</span> ';
+			content += '<span class="link" onclick="changeDir('+dirId+');">'+dirs[dirId][1]+'</span> ';
+			if(dirId%4 == 0) content += '<br />';
 		}
 		document.getElementById('dirs').innerHTML = content;
 	}

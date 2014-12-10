@@ -38,7 +38,7 @@ function RS_makePlot(result::ResultSet; newfigure=true)
 		figure()
 	end
 	for i = i_start:length(result.plotSamples[:,1])
-		plot(xs, result.plotSamples[i,:]', c=colours[i]);
+		plot(xs, result.plotSamples[i,:]', c=colours[i-i_start+1]);
 	end
 	
 	xlabel("x");

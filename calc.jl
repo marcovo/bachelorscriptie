@@ -109,3 +109,26 @@ function GS_alphaMatrix()
 	end
 	
 end
+
+function GS_alphaMatrix_addPlots()
+	as1 = 1.0 : 0.1 : 2.0 ;
+	as2 = as1;
+	dt = 0.01;
+	
+	for a1 in as1, a2 in as2
+		result = RS_open("alphaMat_0.0025_$(dt)/alphaMat_$(a1)_$(a2)_u");
+		RS_makePlot(result);
+		savefig("resultaten/alphaMat_0.0025_$(dt)/alphaMat_$(a1)_$(a2)_u_plot.png");
+		close();
+		
+		result = RS_open("alphaMat_0.0025_$(dt)/alphaMat_$(a1)_$(a2)_v");
+		RS_makePlot(result);
+		savefig("resultaten/alphaMat_0.0025_$(dt)/alphaMat_$(a1)_$(a2)_v_plot.png");
+		close();
+		RS_makeMesh(result);
+		savefig("resultaten/alphaMat_0.0025_$(dt)/alphaMat_$(a1)_$(a2)_v.png");
+		close();
+		
+		println("$(a1)_$(a2)");
+	end
+end
