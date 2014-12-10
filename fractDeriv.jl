@@ -20,6 +20,7 @@ include("types.jl")
 include("files.jl")
 include("plot.jl")
 include("calc.jl")
+include("extraplots.jl")
 
 ##
 # fractDeriv()
