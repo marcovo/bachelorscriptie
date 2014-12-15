@@ -12,7 +12,7 @@ function bulkCalc_evwVgl1(disc::DiscMethode)
 	T = 4.0
 
 	for a in as
-		res = fractDeriv(dx=1.0/N, dt=dt, T=T, BWP=EvwVgl(b=0.1), disc=disc, a=a);
+		res = fractDeriv(dx=1.0/N, dt=dt, T=T, bwp=EvwVgl(b=0.1), disc=disc, a=a);
 		RS_save(res, "evwVgl1_$(disc.toString)_$a")
 	end
 	
@@ -24,26 +24,26 @@ function bulkCalc_evwVgl2(disc::DiscMethode)
 	T = 10.0
 	
 	params = [
-	#	100 1.1
+		100 1.1
 		200 1.1
 	#	400 1.1
-		800 1.1
-		1600 1.1
-		3200 1.1
+	##	800 1.1
+	##	1600 1.1
+	##	3200 1.1
 		100 1.5
 		200 1.5
 	#	400 1.5
-		800 1.5
-		1600 1.5
-		3200 1.5
+	##	800 1.5
+	##	1600 1.5
+	##	3200 1.5
 		100 1.9
 		200 1.9
 	#	400 1.9
-		800 1.9
+	##	800 1.9
 	];
 
 	for i = 1:length(params[:,1])
-		res = fractDeriv(dx=1.0/params[i,1], dt=dt, T=T, BWP=EvwVgl(b=0.1), disc=disc, a=params[i,2]);
+		res = fractDeriv(dx=1.0/params[i,1], dt=dt, T=T, bwp=EvwVgl(b=0.1), disc=disc, a=params[i,2]);
 		RS_save(res, "evwVgl2_$(disc.toString)_$(params[i,1])_$(params[i,2])")
 	end
 	
@@ -61,7 +61,7 @@ function bulkCalc_evwVgl3(disc::DiscMethode)
 	dts = [2e-4]/2.8
 
 	for dt in dts
-		res = fractDeriv(dx=1.0/N, dt=dt, T=T, BWP=EvwVgl(b=0.1), disc=disc, a=a);
+		res = fractDeriv(dx=1.0/N, dt=dt, T=T, bwp=EvwVgl(b=0.1), disc=disc, a=a);
 		RS_save(res, "evwVgl3_$(disc.toString)_$dt")
 		res = 0;
 	end
@@ -127,6 +127,27 @@ function GS_alphaMatrix_addPlots()
 		close();
 		RS_makeMesh(result);
 		savefig("resultaten/alphaMat_0.0025_$(dt)/alphaMat_$(a1)_$(a2)_v.png");
+		close();
+		
+		println("$(a1)_$(a2)");
+	end
+end
+
+function GS_alphaMatrix_specificPlots()
+	as = [
+		(1.2, 1.8)
+		(1.2, 1.7)
+		(1.2, 1.0)
+		(1.6, 1.5)
+		(1.6, 2.0)
+		(2.0, 2.0)
+	]
+	dt = 0.01;
+	
+	for (a1, a2) in as
+		result = RS_open("alphaMat_0.0025_$(dt)/alphaMat_$(a1)_$(a2)_v");
+		RS_makeMesh2(result);
+		savefig("resultaten/alphaMat_0.0025_$(dt)/alphaMat_$(a1)_$(a2)_v_2.png");
 		close();
 		
 		println("$(a1)_$(a2)");

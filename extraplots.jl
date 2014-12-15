@@ -12,7 +12,7 @@ function GS_categories()
 	]
 	
 	cat_1_0_fill = [
-		(1.1, 1.5)
+		(1.2, 1.8)
 	]
 
 	cat_1_1 = [
@@ -26,7 +26,8 @@ function GS_categories()
 	]
 	
 	cat_1_1_fill = [
-		(1.3, 1.7)
+		(1.2, 1.7)
+		(1.2, 1.0)
 	]
 
 	cat_1_2 = [
@@ -41,8 +42,8 @@ function GS_categories()
 	]
 	
 	cat_1_2_fill = [
-		(1.6, 1.9),
-		(1.7, 1.1)
+		(1.6, 1.5),
+		(1.6, 2.0)
 	]
 
 	cat_2_2 = [
@@ -52,7 +53,7 @@ function GS_categories()
 	]
 	
 	cat_2_2_fill = [
-		(1.9, 1.9)
+		(2.0, 2.0)
 	]
 	
 	println(length(cat_1_0) + length(cat_1_1) + length(cat_1_2) + length(cat_2_2))

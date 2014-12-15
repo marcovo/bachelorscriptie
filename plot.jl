@@ -98,7 +98,7 @@ function RS_makeMesh(result::ResultSet)
 	
 	figure()
 	pcolormesh(ts_mesh, xs_mesh, result.meshSamples, cmap="bwr", vmin=minimum(result.meshSamples), vmax=maximum(result.meshSamples))
-	title("Pattern plot")
+	title(L"Tijdsevolutie van $u$")
 	axis([ts_mesh[1], ts_mesh[end], xs_mesh[1], xs_mesh[end]])
 	colorbar()
     xlabel("t");
@@ -108,6 +108,24 @@ function RS_makeMesh(result::ResultSet)
 end
 function RS_makeMesh(filename::String)
 	RS_makeMesh(RS_open(filename))
+end
+
+function RS_makeMesh2(result::ResultSet)
+	xs_mesh = 0:(1/result.Nx_mesh):1
+	ts_mesh = 0:(result.T/result.Nt_mesh):result.T
+	
+	figure()
+	pcolormesh(xs_mesh, ts_mesh, result.meshSamples', cmap="bwr", vmin=minimum(result.meshSamples), vmax=maximum(result.meshSamples))
+	title(L"Tijdsevolutie van $u$")
+	axis([xs_mesh[1], xs_mesh[end], ts_mesh[1], ts_mesh[end]])
+	colorbar()
+    xlabel("x");
+    ylabel("t");
+	
+	nothing
+end
+function RS_makeMesh2(filename::String)
+	RS_makeMesh2(RS_open(filename))
 end
 
 
@@ -500,7 +518,7 @@ function RS_velocityMultiPlot_calc()
 			dx = dxs[ix];
 			dt = dts[it];
 			
-			result = fractDeriv(dx=dx, dt=dt, T=30.0, BWP=Fisher(chi=5.0e-4,gamma=1.0/3, W=Wmin,x0=0.9), disc=L2C("im"), a=1.9, trackMiddle=true);
+			result = fractDeriv(dx=dx, dt=dt, T=30.0, bwp=Fisher(chi=5.0e-4,gamma=1.0/3, W=Wmin,x0=0.9), disc=L2C("im"), a=1.9, trackMiddle=true);
 			
 			xs = 0.0:result.dx:result.BWP.L
 			ts = 0.0:result.dt:result.T;
@@ -508,7 +526,7 @@ function RS_velocityMultiPlot_calc()
 			vs = zeros(length(result.xsMiddle));
 			vs[2:end] = (result.xsMiddle[2:end] - result.xsMiddle[1:end-1]) / result.dt;
 			
-			v = mean(vs[end-10,end]);
+			v = mean(vs[end-10:end]);
 
 			Vs[it, ix] = v;
 		end
@@ -541,7 +559,7 @@ function RS_velocityMultiPlot_draw2(Vs)
 		semilogx((dxs.^1.9)/(5.0e-4 * dts[it]), Vs[it,:]', marker="o");
 	end
 	
-	xlabel(L"\Delta_x");
+	xlabel(L"\Delta_x^\alpha/(\chi \Delta_t)");
 	ylabel(L"c_{\mathrm{eind}}");
 	legend( map( dt -> string(L"\Delta_t = ", dt), dts), loc="lower right", fontsize="small", scatterpoints=1, labelspacing = 0.1#=, ncol = 2=#);
 	
@@ -549,7 +567,7 @@ end
 
 function ShenLiu_calc(T)
 	Nx = 100.00000001; # We include a small number to avoid a problem which causes the range to create n-1 points instead of n points...
-	result = fractDeriv(dx=pi/Nx, dt=1.0e-4, T=T, BWP=HeatPi(chi=0.4), disc=L2C("ex"), a=1.7);
+	result = fractDeriv(dx=pi/Nx, dt=1.0e-4, T=T, bwp=HeatPi(chi=0.4), disc=L2C("ex"), a=1.7);
 	println([0.0:pi/Nx:pi][map(x->10*x+1, [0:10])]')
 	println(result.plotSamples[end,map(x->10*x+1, [0:10])])
 	result
