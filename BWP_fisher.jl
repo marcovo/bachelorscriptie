@@ -12,11 +12,12 @@ type Fisher <: BWP
 	W::Float64		# W < 0 = right-propagating, W > 0 = left-propagating
 	x0::Float64
 end
-Fisher(;chi=5e-7, gamma=1.0, W=1e-3, x0=3e-3) = Fisher("Fisher", false, 1.0, chi, gamma, W, x0)
 
+# Default values from Physical Review Letters, del Castillo. W is halved because in the initial condition it is doubled
+Fisher(;chi=5e-7, gamma=1.0, W=-0.5e-3, x0=3e-3) = Fisher("Fisher", false, 1.0, chi, gamma, W, x0)
 convert(::Type{Fisher}, d::Dict{String,Any}) = Fisher(d["toString"], d["analyticSol"], 1.0, d["chi"], d["gamma"], d["W"], d["x0"])
 
-Wmin = ((1.9-1.0)*5e-4 * 3)^(1/1.9);
+Wmin = ((1.9-1.0)*5e-4 * 3)^(1/1.9); # a specific W_min
 
 ##
 # beginOpl

@@ -19,7 +19,7 @@ end
 # RS_makePlot
 # Plot (x, u)
 ##
-function RS_makePlot(result::ResultSet; newfigure=true)
+function RS_makePlot(result::ResultSet; newfigure=true, selfSimVelocities=false, legendLoc="center right", label_x=L"x", label_y=L"u")
 	xs = 0:result.dx:result.BWP.L;
 
 	T = result.T;
@@ -33,17 +33,22 @@ function RS_makePlot(result::ResultSet; newfigure=true)
 	else
 		i_start = 2;
 	end
+
+	if(selfSimVelocities == false)
+		selfSimVelocities = 0*ts;
+	end
+	selfSimOffsets = cumsum(selfSimVelocities*T/8);
 	
 	if(newfigure)
 		figure()
 	end
 	for i = i_start:length(result.plotSamples[:,1])
-		plot(xs, result.plotSamples[i,:]', c=colours[i-i_start+1]);
+		plot(xs+selfSimOffsets[i-1], result.plotSamples[i,:]', c=colours[i-i_start+1]);
 	end
 	
-	xlabel("x");
-	ylabel("u");
-	legend(labels, loc="center right", fontsize="small", labelspacing = 0.1);
+	xlabel(label_x);
+	ylabel(label_y);
+	legend(labels, loc=legendLoc, fontsize="small", labelspacing = 0.1);
 	
 	nothing
 end
@@ -55,19 +60,26 @@ end
 # RS_makeLogLog
 # Plot (x, u) in log-log schaal
 ##
-function RS_makeLogLog(result::ResultSet; newfigure=true)
+function RS_makeLogLog(result::ResultSet; newfigure=true, legendLoc="lower left")
 	xs = 0:result.dx:result.BWP.L;
+
+	T = result.T;
+	ts = [0, T/8, 2*T/8, 3*T/8, 4*T/8, 5*T/8, 6*T/8, 7*T/8, T];
+	labels = map(t -> string(L"t = ", t), ts);
+	colours = map(t -> (0, 0.8*(1-t/T), t/T), ts);
 	
 	if(newfigure)
 		figure()
 	end
-	for i = 1:length(result.plotSamples[:,1])
-		loglog(xs[2:end], result.plotSamples[i,2:end]');
+	for i = 2:length(result.plotSamples[:,1])
+		loglog(xs[2:end], result.plotSamples[i,2:end]', c=colours[i-1]);
 	end
 	
-	axis([5e-4, 1.5, 5e-8, 1.5]);
-    xlabel("x");
-    ylabel("u");
+	#axis([5e-4, 1.5, 5e-8, 1.5]);
+	axis([1e-3, 1.0, 1e-7, 1.5]);
+    xlabel(L"x");
+    ylabel(L"u");
+	legend(labels, loc=legendLoc, fontsize="small", labelspacing = 0.1);
 	
 	nothing
 end
@@ -500,7 +512,7 @@ function RS_velocityPlot(result::ResultSet)
 
 end
 
-function RS_velocityMultiPlot_vals()
+function velocityMultiPlot_vals()
 	dxs = [0.6e-3, 1.0e-3, 1.25e-3, 1.6e-3, 2.5e-3, 5e-3, 1.0e-2];
 	dts = [0.2, 0.1, 0.07, 0.04, 0.01, 0.006, 0.002];
 	
@@ -508,8 +520,8 @@ function RS_velocityMultiPlot_vals()
 end
 
 
-function RS_velocityMultiPlot_calc()
-	dxs, dts = RS_velocityMultiPlot_vals()
+function velocityMultiPlot_calc()
+	dxs, dts = velocityMultiPlot_vals()
 	
 	Vs = zeros(length(dts), length(dxs));
 	
@@ -519,9 +531,6 @@ function RS_velocityMultiPlot_calc()
 			dt = dts[it];
 			
 			result = fractDeriv(dx=dx, dt=dt, T=30.0, bwp=Fisher(chi=5.0e-4,gamma=1.0/3, W=Wmin,x0=0.9), disc=L2C("im"), a=1.9, trackMiddle=true);
-			
-			xs = 0.0:result.dx:result.BWP.L
-			ts = 0.0:result.dt:result.T;
 
 			vs = zeros(length(result.xsMiddle));
 			vs[2:end] = (result.xsMiddle[2:end] - result.xsMiddle[1:end-1]) / result.dt;
@@ -535,8 +544,8 @@ function RS_velocityMultiPlot_calc()
 	Vs
 end
 
-function RS_velocityMultiPlot_draw(Vs)
-	dxs, dts = RS_velocityMultiPlot_vals()
+function velocityMultiPlot_draw(Vs)
+	dxs, dts = velocityMultiPlot_vals()
 	
 	figure();
 	for it in 1:length(dts)
@@ -551,8 +560,8 @@ function RS_velocityMultiPlot_draw(Vs)
 end
 
 
-function RS_velocityMultiPlot_draw2(Vs)
-	dxs, dts = RS_velocityMultiPlot_vals()
+function velocityMultiPlot_draw2(Vs)
+	dxs, dts = velocityMultiPlot_vals()
 	
 	figure();
 	for it in 1:length(dts)
@@ -571,6 +580,37 @@ function ShenLiu_calc(T)
 	println([0.0:pi/Nx:pi][map(x->10*x+1, [0:10])]')
 	println(result.plotSamples[end,map(x->10*x+1, [0:10])])
 	result
+end
+
+function fisherSelfSim_calc(disc::DiscMethode)
+	chi=5.0e-3;
+	gamma=1.0/3;
+	a=1.1;
+	Wmin = ((a-1)*chi/gamma)^(1/a);
+	cmin = a*gamma/(a-1)*Wmin;
+	println("Wmin = ", Wmin, ", cmin= ", cmin);
+	
+	fractDeriv(dx=1/400, dt=0.001, T=70.0, bwp=Fisher(chi=chi,gamma=gamma, W=Wmin,x0=0.9), disc=disc, a=1.1, trackMiddle=true);
+	
+end
+
+function fisherSelfSim_draw(result)
+
+	vs = zeros(length(result.xsMiddle));
+	vs[2:end] = (result.xsMiddle[2:end] - result.xsMiddle[1:end-1]) / result.dt;
+	
+	Nt = result.T/result.dt;
+	ts = [0, Nt/8, 2*Nt/8, 3*Nt/8, 4*Nt/8, 5*Nt/8, 6*Nt/8, 7*Nt/8, Nt]
+	v = map(it -> mean(vs[it-10:it]), ts[2:end]);
+	prepend!(v, [v[1]]);
+	
+	figure();
+	plot(vs[3:end]);
+	
+	RS_makePlot(result, legendLoc="center left");
+	
+	RS_makePlot(result, selfSimVelocities=abs(v), legendLoc="center left", label_x=L"x+ct");
+	
 end
 
 function ShenLiu_plot()
