@@ -234,6 +234,7 @@ function BerekenGrayScott(dx::Float64, dt::Float64, T::Float64, Nx_img::Integer,
 		zeros(Nt+1),
 		zeros(Nt+1),
 		zeros(Nt+1),
+		[0.0],
 		zeros(10, Nx+1),
 		zeros(Nx_img+1, Nt_img+1),
 		trackMiddle,
@@ -245,6 +246,7 @@ function BerekenGrayScott(dx::Float64, dt::Float64, T::Float64, Nx_img::Integer,
 		zeros(Nt+1),
 		zeros(Nt+1),
 		zeros(Nt+1),
+		[0.0],
 		zeros(10, Nx+1),
 		zeros(Nx_img+1, Nt_img+1),
 		trackMiddle,
@@ -296,6 +298,8 @@ function BerekenGrayScott(dx::Float64, dt::Float64, T::Float64, Nx_img::Integer,
 	temp4 = ones(Nx-1);
 	implCorr1 = ones(Nx-1);
 	implCorr2 = ones(Nx-1);
+	
+	print("t = 0.0                                       ");
 
     for n = 2:Nt+1
         t = (n-1)*dt;
@@ -348,6 +352,7 @@ function BerekenGrayScott(dx::Float64, dt::Float64, T::Float64, Nx_img::Integer,
         
 		# Save the plot if needed
         if(plotNts[plotNt_i] <= t)
+			print("\rt = $t                                       ");
             RS_savePlot!(res_u, plotNt_i, u_t);
             RS_savePlot!(res_v, plotNt_i, v_t);
             plotNt_i = plotNt_i + 1;
@@ -358,6 +363,7 @@ function BerekenGrayScott(dx::Float64, dt::Float64, T::Float64, Nx_img::Integer,
             break
         end
     end
+    print("\n");
     
     res_u, res_v
 end
