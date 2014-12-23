@@ -28,7 +28,7 @@ end
 ##
 function Dalpha!(W, u, n, ua, disc)
 	for i = 1:n-1
-		ua[i] = W[i, 1]*u[2];
+		ua[i] = W[i, 1]*u[2];	# We don't include u[1] as that coefficient has already been incorporated in W[i, 1], assuming u[1]=u[2].
 		
 		#if i < n-1
 		#	ua[i] += W[1, 2] * u[i+2];

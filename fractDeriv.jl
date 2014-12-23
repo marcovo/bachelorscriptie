@@ -59,7 +59,7 @@ function BerekenFisher(dx::Float64, dt::Float64, T::Float64, Nx_img::Integer, Nt
 	const ts_img = 0:dt_img:T;
 	Nx_img = length(xs_img)-1;
 	Nt_img = length(ts_img)-1;
-	u_xt = zeros(Nx_img+1, Nt_img+1);
+	u_xt = zeros(Nx_img+1, Nt_img+1);	# Wat doet dit?
 	const sampleFactor_x = Nx/Nx_img;
 	const sampleFactor_t = Nt/Nt_img;
 	nextSaveT = 0;
@@ -222,7 +222,7 @@ function BerekenGrayScott(dx::Float64, dt::Float64, T::Float64, Nx_img::Integer,
 	const ts_img = 0:dt_img:T;
 	Nx_img = length(xs_img)-1;
 	Nt_img = length(ts_img)-1;
-	u_xt = zeros(Nx_img+1, Nt_img+1);
+	u_xt = zeros(Nx_img+1, Nt_img+1);	# Wat doet dit?
 	const sampleFactor_x = Nx/Nx_img;
 	const sampleFactor_t = Nt/Nt_img;
 	nextSaveT = 0;
@@ -366,6 +366,64 @@ function BerekenGrayScott(dx::Float64, dt::Float64, T::Float64, Nx_img::Integer,
     print("\n");
     
     res_u, res_v
+end
+
+function berekenAfgeleideFisher(;dx=0.01, a=1.5, disc=L2())
+	x0=0.3
+	W=-0.03
+	
+	f =  x -> 0.5* ( 1 + tanh((x - x0)/(2*W)) );
+	Df = x -> -(0.25*tanh((x-x0)/(2W))*(sech((x-x0)/(2W)))^2)/W^2
+	
+	berekenAfgeleide(f=f, Df=Df, dx=dx, a=a, disc=disc)
+end
+
+function berekenAfgeleideMonoom(;dx=0.01, a=1.5, disc=L2(), p=3, doPlot=true)
+	
+	f =  x -> x^p;
+	Df = x -> gamma(p+1)/gamma(p-a+1)*x^(p-a)
+	
+	berekenAfgeleide(f=f, Df=Df, dx=dx, a=a, disc=disc, doPlot=doPlot)
+end
+
+function berekenAfgeleide(;f=(x->cos(2pi*x)), Df=(x->-4pi^2*cos(2pi*x)), dx=0.01, a=1.5, disc=L2(), doPlot=true)
+    const xs = 0:dx:1;
+    const Nx=length(xs)-1;
+
+	u = map(f, xs);
+	dudxa = zeros(Nx-1);
+	
+	#tic();
+	const Wred = berekenWReduced(disc, Nx, a, dx);
+	#toc();
+	Dalpha!(Wred, u-u[1], Nx, dudxa, disc)
+
+	dudxa_exact = map(Df, xs);
+	
+	if(doPlot)
+		figure();
+		plot(xs[2:end-1], u[2:end-1])
+		
+		figure();
+		plot(xs[2:end-1], dudxa_exact[2:end-1]);
+		plot(xs[2:end-1], dudxa)
+	end
+
+	exactError = sqrt(sumsqdiff(dudxa, dudxa_exact[2:end-1]) / sumsq(dudxa_exact[2:end-1]));
+	
+end
+
+function berekenAfgeleideMonoomTable(;disc=L2())
+	as = 1.0:0.1:2.0;
+	dxs = [0.04, 0.02, 0.01, 0.005, 0.0025];
+	
+	for a in as
+		for dx in dxs
+			print(signif(berekenAfgeleideMonoom(dx=dx, a=a, disc=disc, p=3, doPlot=false), 6), "\t&");
+		end
+		print("\n");
+	end
+	
 end
 
 # Als er niets is misgegaan, geven we maar even een mooie succes-melding
