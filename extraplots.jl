@@ -84,3 +84,32 @@ function GS_categories()
     xlabel(L"\alpha_1");
     ylabel(L"\alpha_2");
 end
+
+function monomialDerivatives(;as = 1.0:0.05:3.0)
+	p = 3;
+
+	xs = e.^(-10:0.05:0.0); # logaritmische schaal om het stijle gedrag rond x=0 goed weer te geven
+	
+	AA = maximum(as);
+	aa = minimum(as);
+	colours = map(a -> (0, 0.8*(1-(a-aa)/(AA-aa)), (a-aa)/(AA-aa)), as);
+
+	f =  x -> x^p;
+	
+	for i = 1:length(as)
+		a = as[i];
+		Df = x -> gamma(p+1)/gamma(p-a+1)*x^(p-a)
+		dudxa_exact = map(Df, xs);
+		plot(xs, dudxa_exact, c=colours[i]);
+	end
+	
+	xlabel(L"x");
+	ylabel(L"D^\alpha x^p");
+
+end
+
+function monomialDerivativesMulti()
+	monomialDerivatives(as = 0.0:0.05:0.95)
+	monomialDerivatives(as = 1.0:0.05:1.95)
+	monomialDerivatives(as = 2.0:0.05:3.0)
+end
