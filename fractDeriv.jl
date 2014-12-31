@@ -302,70 +302,86 @@ function BerekenGrayScott(dx::Float64, dt::Float64, T::Float64, Nx_img::Integer,
 	print("t = 0.0                                       ");
 
     for n = 2:Nt+1
-        t = (n-1)*dt;
-        
-        # If we're modelling semi-implicit, we keep track of a 'implicit correction'.
-		if disc1.imex == "im"
-			implCorr1 = Wimpl1*u_t[2:Nx];
-		end
-		if disc2.imex == "im"
-			implCorr2 = Wimpl2*v_t[2:Nx];
-		end
-		
-		# Calculate the explicit derivative
-		Dalpha!(Wred1, u_t-u_t[1], Nx, temp1, disc1) #temp1 = W*(u_t-u_t[1]);
-		temp2 = inhom1(bwp, u_t[2:Nx], v_t[2:Nx], xs[2:Nx]);
-		temp3 = dt*bwp.eps1*temp1 + dt*temp2;
-		
-		Dalpha!(Wred2, v_t-v_t[1], Nx, temp1, disc2) #temp1 = W*(v_t-v_t[1]);
-		temp2 = inhom2(bwp, u_t[2:Nx], v_t[2:Nx], xs[2:Nx]);
-		temp4 = dt*bwp.eps2*temp1 + dt*temp2;
-		
-		u_t[2:Nx] += temp3;
-		v_t[2:Nx] += temp4;
-		
-		# If we're modelling semi-implicit, we now apply the correction, for what we've calculated explicitly, what we should have done implicitly.
-		# After that, we solve the system of equalities with the \-operator.
-		if disc1.imex == "im"
-			u_t[2:Nx] = IWimpl1\(u_t[2:Nx] + implCorr1)
-		end
-		if disc2.imex == "im"
-			v_t[2:Nx] = IWimpl2\(v_t[2:Nx] + implCorr2)
-		end
-		
-		# Apply the boundery conditions for the specific boundery value problem
-		randVW1!(bwp, u_t, t)
-		randVW2!(bwp, v_t, t)
-		
-		# We log some information in our result-set
-		res_u.followUpDiff[n] = sqrt(sumsq(temp3)/sumsq(u_t));
-		res_u.maxVals[n] = minimum(u_t);
-
-		res_v.followUpDiff[n] = sqrt(sumsq(temp4)/sumsq(v_t));
-		res_v.maxVals[n] = maximum(v_t);
-		
-		# Save the mesh if needed
-		if((n-1)%sampleFactor_t == 0)
-			RS_saveMesh!(res_u, (n-1)/sampleFactor_t, u_t, sampleFactor_x);
-			RS_saveMesh!(res_v, (n-1)/sampleFactor_t, v_t, sampleFactor_x);
-		end
-        
-		# Save the plot if needed
-        if(plotNts[plotNt_i] <= t)
-			print("\rt = $t                                       ");
-            RS_savePlot!(res_u, plotNt_i, u_t);
-            RS_savePlot!(res_v, plotNt_i, v_t);
-            plotNt_i = plotNt_i + 1;
-        end
+        plotNt_i = BerekenGrayScottLoop!(
+			n, Nx, dt, disc1, disc2, temp1, temp2, temp3, temp4, implCorr1, Wred1, Wimpl1, IWimpl1, implCorr2, Wred2, Wimpl2, IWimpl2,
+			u_t, v_t, xs, bwp, res_u, res_v, sampleFactor_t, sampleFactor_x, plotNts, plotNt_i
+		)
 
 		# We let the plot determine when we're done calculating
-        if(plotNt_i >= length(plotNts)+1)
-            break
-        end
+		if(plotNt_i >= length(plotNts)+1)
+			break
+		end
     end
     print("\n");
     
     res_u, res_v
+end
+
+function BerekenGrayScottLoop!(
+		n::Integer, Nx::Integer, dt::Float64, disc1::DiscMethode, disc2::DiscMethode,
+		temp1::Array{Float64, 1}, temp2::Array{Float64, 1}, temp3::Array{Float64, 1}, temp4::Array{Float64, 1},
+		implCorr1::Array{Float64, 1}, Wred1::Array{Float64, 2}, Wimpl1::Tridiagonal{Float64}, IWimpl1::Tridiagonal{Float64},
+		implCorr2::Array{Float64, 1}, Wred2::Array{Float64, 2}, Wimpl2::Tridiagonal{Float64}, IWimpl2::Tridiagonal{Float64},
+		u_t::Array{Float64, 1}, v_t::Array{Float64, 1}, xs::FloatRange{Float64},
+		bwp::BWP, res_u::ResultSet, res_v::ResultSet, sampleFactor_t, sampleFactor_x, plotNts::Array{Float64,1}, plotNt_i::Integer
+		)
+	t = (n-1)*dt;
+        
+	# If we're modelling semi-implicit, we keep track of a 'implicit correction'.
+	if disc1.imex == "im"
+		implCorr1 = Wimpl1*u_t[2:Nx];
+	end
+	if disc2.imex == "im"
+		implCorr2 = Wimpl2*v_t[2:Nx];
+	end
+	
+	# Calculate the explicit derivative
+	Dalpha!(Wred1, u_t-u_t[1], Nx, temp1, disc1) #temp1 = W*(u_t-u_t[1]);
+	temp2 = inhom1(bwp, u_t[2:Nx], v_t[2:Nx], xs[2:Nx]);
+	temp3 = dt*bwp.eps1*temp1 + dt*temp2;
+	
+	Dalpha!(Wred2, v_t-v_t[1], Nx, temp1, disc2) #temp1 = W*(v_t-v_t[1]);
+	temp2 = inhom2(bwp, u_t[2:Nx], v_t[2:Nx], xs[2:Nx]);
+	temp4 = dt*bwp.eps2*temp1 + dt*temp2;
+	
+	u_t[2:Nx] += temp3;
+	v_t[2:Nx] += temp4;
+	
+	# If we're modelling semi-implicit, we now apply the correction, for what we've calculated explicitly, what we should have done implicitly.
+	# After that, we solve the system of equalities with the \-operator.
+	if disc1.imex == "im"
+		u_t[2:Nx] = IWimpl1\(u_t[2:Nx] + implCorr1)
+	end
+	if disc2.imex == "im"
+		v_t[2:Nx] = IWimpl2\(v_t[2:Nx] + implCorr2)
+	end
+	
+	# Apply the boundery conditions for the specific boundery value problem
+	randVW1!(bwp, u_t, t)
+	randVW2!(bwp, v_t, t)
+	
+	# We log some information in our result-set
+	res_u.followUpDiff[n] = sqrt(sumsq(temp3)/sumsq(u_t));
+	res_u.maxVals[n] = minimum(u_t);
+
+	res_v.followUpDiff[n] = sqrt(sumsq(temp4)/sumsq(v_t));
+	res_v.maxVals[n] = maximum(v_t);
+	
+	# Save the mesh if needed
+	if((n-1)%sampleFactor_t == 0)
+		RS_saveMesh!(res_u, (n-1)/sampleFactor_t, u_t, sampleFactor_x);
+		RS_saveMesh!(res_v, (n-1)/sampleFactor_t, v_t, sampleFactor_x);
+	end
+	
+	# Save the plot if needed
+	if(plotNts[plotNt_i] <= t)
+		print("\rt = $t                                       ");
+		RS_savePlot!(res_u, plotNt_i, u_t);
+		RS_savePlot!(res_v, plotNt_i, v_t);
+		plotNt_i = plotNt_i + 1;
+	end
+	
+	plotNt_i
 end
 
 function berekenAfgeleideFisher(;dx=0.01, a=1.5, disc=L2())

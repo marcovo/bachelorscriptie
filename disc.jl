@@ -28,7 +28,7 @@ end
 ##
 function Dalpha!(W, u, n, ua, disc)
 	for i = 1:n-1
-		ua[i] = W[i, 1]*u[2];	# We don't include u[1] as that coefficient has already been incorporated in W[i, 1], assuming u[1]=u[2].
+		@inbounds ua[i] = W[i, 1]*u[2];	# We don't include u[1] as that coefficient has already been incorporated in W[i, 1], assuming u[1]=u[2].
 		
 		#if i < n-1
 		#	ua[i] += W[1, 2] * u[i+2];
@@ -36,8 +36,8 @@ function Dalpha!(W, u, n, ua, disc)
 		#	ua[i] += disc.s * W[1, 2] * u[i+1];
 		#end
 		
-		for l=1:i
-			ua[i] += W[l, 2] * u[i+3-l];
+		@simd for l=1:i
+			@inbounds ua[i] += W[l, 2] * u[i+3-l];
 		end
 	end
 end

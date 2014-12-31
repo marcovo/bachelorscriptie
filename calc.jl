@@ -83,27 +83,48 @@ end
 function GS_alphaMatrix()
 	as1 = 1.0 : 0.1 : 2.0 ;
 	as2 = as1;
-	dt = 0.1;
+	#dt = 0.1;
+	dt = 0.005;
 
-	as1 = 1.5 : 0.1 : 2.0 ;
-	as2 = 1.0 : 0.1 : 1.5;
-	dt = 0.01;
+	#as1 = 1.5 : 0.1 : 2.0 ;
+	#as2 = 1.0 : 0.1 : 1.5;
+	#dt = 0.01;
 	
-	as1 = 1.0 : 0.1 : 1.4 ;
-	as2 = 1.0 : 0.1 : 2.0;
-	dt = 0.01;
+	#as1 = 1.0 : 0.1 : 1.4 ;
+	#as2 = 1.0 : 0.1 : 2.0;
+	#dt = 0.01;
 	
-	as1 = 1.5 : 0.1 : 2.0 ;
-	as2 = 1.6 : 0.1 : 2.0;
-	dt = 0.01;
+	#as1 = 1.5 : 0.1 : 2.0 ;
+	#as2 = 1.6 : 0.1 : 2.0;
+	#dt = 0.01;
 	
 	for a1 in as1, a2 in as2
+		
+		if(a1 <= 1.2 || (a1 == 1.3 && a2 <= 1.5))
+			continue;
+		end
+		
+		
 		res_u, res_v = fractGrayScott(dx=0.0025, dt=dt, bwp=GrayScott(a1=a1,a2=a2),disc1=L2("im"),disc2=L2("im"),imgX=400,imgT=250);
 		RS_save(res_u, "alphaMat/alphaMat_$(a1)_$(a2)_u")
 		RS_save(res_v, "alphaMat/alphaMat_$(a1)_$(a2)_v")
-		RS_makeMesh(res_u);
+
+		RS_makeMesh2(res_u);
 		savefig("resultaten/alphaMat/alphaMat_$(a1)_$(a2)_u.png");
 		close();
+
+		RS_makePlot(res_u);
+		savefig("resultaten/alphaMat/alphaMat_$(a1)_$(a2)_u_plot.png");
+		close();
+
+		RS_makeMesh2(res_v);
+		savefig("resultaten/alphaMat/alphaMat_$(a1)_$(a2)_v.png");
+		close();
+
+		RS_makePlot(res_v);
+		savefig("resultaten/alphaMat/alphaMat_$(a1)_$(a2)_v_plot.png");
+		close();
+		
 		res_u = 0;
 		res_v = 0;
 	end
