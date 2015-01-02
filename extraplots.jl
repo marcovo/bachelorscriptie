@@ -226,7 +226,7 @@ function plotEVGershgorinL2()
 	loc = (typeof(disc) == L2C)?"center left":"upper left"
 	
 	legend( [L"i = 2,\ldots,N_x-2", L"i = N_x - 1", L"i = 1", "Eigenwaarden"], loc=loc, fontsize="small", scatterpoints=1, labelspacing = 0.1#=, ncol = 2=#);
-	title("Eigenwaarden en Gershgorin schrijven van $(disc.toString)")
+	title("Eigenwaarden en Gershgorin schijven van $(disc.toString)")
     xlabel("Re(z)");
     ylabel("Im(z)");
     
@@ -261,10 +261,10 @@ function plotEVGershgorinExample()
 	
 	loc = "upper left"
 	
-	legend( [L"i = 2,\ldots,N_x-2", L"i = N_x - 1", L"i = 1", "Eigenwaarden"], loc=loc, fontsize="small", scatterpoints=1, labelspacing = 0.1#=, ncol = 2=#);
-	title("Eigenwaarden en Gershgorin schrijven")
-    xlabel("Re(z)");
-    ylabel("Im(z)");
+	legend( [L"i = 1", L"i = 2", L"i = 3", "Eigenwaarden"], loc=loc, fontsize="small", scatterpoints=1, labelspacing = 0.1#=, ncol = 2=#);
+	title("Eigenwaarden en Gershgorin schijven")
+    xlabel(L"Re($\lambda$)");
+    ylabel(L"Im($\lambda$)");
     
 	axis([-10, 10, -10, 10])
 	
