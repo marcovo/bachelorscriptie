@@ -92,7 +92,11 @@ function monomialDerivatives(;as = 1.0:0.05:3.0)
 	
 	AA = maximum(as);
 	aa = minimum(as);
-	colours = map(a -> (0, 0.8*(1-(a-aa)/(AA-aa)), (a-aa)/(AA-aa)), as);
+	if(length(as) == 1)
+		colours = [(1,0,0)];
+	else
+		colours = map(a -> (0, 0.8*(1-(a-aa)/(AA-aa)), (a-aa)/(AA-aa)), as);
+	end
 
 	f =  x -> x^p;
 	
@@ -109,9 +113,13 @@ function monomialDerivatives(;as = 1.0:0.05:3.0)
 end
 
 function monomialDerivativesMulti()
-	monomialDerivatives(as = 0.0:0.05:0.95)
-	monomialDerivatives(as = 1.0:0.05:1.95)
-	monomialDerivatives(as = 2.0:0.05:3.0)
+	monomialDerivatives(as = [0.0])
+	monomialDerivatives(as = 0.05:0.05:0.95)
+	monomialDerivatives(as = [1.0])
+	monomialDerivatives(as = 1.05:0.05:1.95)
+	monomialDerivatives(as = [2.0])
+	monomialDerivatives(as = 2.05:0.05:2.95)
+	monomialDerivatives(as = [3.0])
 end
 
 ##
@@ -166,12 +174,12 @@ function plotEV(disc::DiscMethode, dt)
     xlabel("Re(z)");
     ylabel("Im(z)");
     
-    if typeof(disc) == L2
-		axis([-5, 1, -1, 1])
-		axis([-2, 0.1, -0.5, 0.5])
-    else
+    if typeof(disc) == L2C
 		axis([-1, 0.2, -1.5, 1.5])
 		axis([-0.11, 0.01, -0.15, 0.15])
+    else
+		axis([-5, 1, -1, 1])
+		#axis([-2, 0.1, -0.5, 0.5])
     end
 	
 	nothing
@@ -189,6 +197,26 @@ function plotL2StabBound()
 	xlabel(L"$\alpha$");
 	ylabel(L"$f(\alpha)$");
 	title(L"$f(\alpha) = \Gamma(3-\alpha)/(3-2^{2-\alpha})$");
+	
+	axis([1, 2, 0.4, 1])
+	
+	nothing
+end
+
+function plotL2StabBound2()
+	a = 1:0.01:2;
+	b = gamma(3-a)./(3-2.^(2-a));
+	c = 1./a;
+	
+	figure();
+	grid(true);
+	
+	plot(a, b);
+	plot(a, c);
+	
+	xlabel(L"$\alpha$");
+	ylabel(L"$f$, $g$");
+	legend([L"f(\alpha) = \Gamma(3-\alpha)/(3-2^{2-\alpha})", L"g(\alpha) = 1/\alpha"]);
 	
 	axis([1, 2, 0.4, 1])
 	
@@ -267,6 +295,45 @@ function plotEVGershgorinExample()
     ylabel(L"Im($\lambda$)");
     
 	axis([-10, 10, -10, 10])
+	
+	nothing
+end
+
+function plotGS_initCond()
+	
+	dx = 0.0025;
+	bwp = GrayScott();
+    xs = 0:dx:bwp.L;
+	
+	u_t = beginOpl1(bwp, xs);
+	v_t = beginOpl2(bwp, xs);
+	
+	figure();
+	plot(xs, u_t);
+	plot(xs, v_t);
+	
+	xlabel(L"x");
+	ylabel(L"u, v");
+	legend([L"u(x,t=0)", L"v(x,t=0)"])
+	
+end
+
+function plotFisher_sols()
+	
+	dx = 0.025;
+    xs = -8:dx:5;
+	uA = 1./(1 + 2*exp(xs) + exp(2*xs));
+	uB = 1./(1 + exp(2*xs));
+	
+	figure();
+	plot(xs, uA);
+	plot(xs, uB);
+	
+	xlabel(L"x");
+	ylabel(L"u_A, u_B");
+	legend([L"u_A(x,t=0)", L"u_B(x,t=0)"])
+	
+	axis([-8,5,-0.1, 1.1]);
 	
 	nothing
 end
