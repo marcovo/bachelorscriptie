@@ -24,6 +24,8 @@ function RS_makePlot(result::ResultSet; newfigure=true, selfSimVelocities=false,
 
 	T = result.T;
 	ts = [0, T/8, 2*T/8, 3*T/8, 4*T/8, 5*T/8, 6*T/8, 7*T/8, T];
+    #ts = [0, 0.005, 0.0185, 0.0365, 0.0585, 10.0, 10.0, 10.0, 10.0];
+
 	labels = map(t -> string(L"t = ", t), ts);
 	colours = map(t -> (0, 0.8*(1-t/T), t/T), ts);
 	if(result.BWP.analyticSol)
@@ -49,6 +51,8 @@ function RS_makePlot(result::ResultSet; newfigure=true, selfSimVelocities=false,
 	xlabel(label_x);
 	ylabel(label_y);
 	legend(labels, loc=legendLoc, fontsize="small", labelspacing = 0.1);
+	#axis([0, 1, 0, 0.06])
+	#axis([0.3, 0.7, 0, 0.16])
 	
 	nothing
 end
@@ -113,8 +117,8 @@ function RS_makeMesh(result::ResultSet)
 	title(L"Tijdsevolutie van $u$")
 	axis([ts_mesh[1], ts_mesh[end], xs_mesh[1], xs_mesh[end]])
 	colorbar()
-    xlabel("t");
-    ylabel("x");
+    xlabel(L"t");
+    ylabel(L"x");
 	
 	nothing
 end
@@ -131,8 +135,8 @@ function RS_makeMesh2(result::ResultSet)
 	title(L"Tijdsevolutie van $u$")
 	axis([xs_mesh[1], xs_mesh[end], ts_mesh[1], ts_mesh[end]])
 	colorbar()
-    xlabel("x");
-    ylabel("t");
+    xlabel(L"x");
+    ylabel(L"t");
 	
 	nothing
 end
